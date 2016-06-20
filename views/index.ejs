@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>CRM IQBoard</title>
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
+	<script src="/javascripts/angular-file-upload.js"></script>
+	<!-- 	<script src="/javascripts/angular-file-upload-shim.js"></script> -->
+    <script src="/javascripts/angularApp.js"></script>
+    <script src="/javascripts/dirPagination.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" ></script>
+    <style>
+    	.glyphicon-thumbs-up { cursor:pointer } 
+		.ng-dirty.ng-valid { border-color: green; }
+		.ng-dirty.ng-invalid { border-color: red; }
+	 	.boton
+	 	{
+	 		cursor: pointer;
+	 		color:#3C3C3B;
+	 		border:none; 
+	 		background: none; 
+			-webkit-transition:  .7s ease;
+	 		-moz-transition:  .7s ease;
+	 		-ms-transition:  .7s ease;
+	 		-o-transition:  .7s ease;
+	 		transition:  .7s ease;
+		}
+	 	.boton:hover{border-bottom: 1px solid #FF0B45; color:#FF0B45;}
+	 	body
+	 	{
+	 		background: url('/images/hoffman.png'),;
+	 		background-repeat: repeat-y repeat-x;
+	 	}
+	 	#btnCrearCliente
+	 	{
+	 		position: fixed; 
+	 		background-color: #f0f0f0; 
+	 		top:80%; 
+	 		padding: .5%; 
+	 		width: auto; 
+	 		right: -5.8%;
+	 		border-radius: 4px;
+	 		-webkit-transition:  .7s ease;
+	 		-moz-transition:  .7s ease;
+	 		-ms-transition:  .7s ease;
+	 		-o-transition:  .7s ease;
+	 		transition:  .7s ease;
+	 		z-index: 100;
+	 	}
+	  	#btnCrearCliente:hover{
+	 		background-color: #fff; 
+	 		right: 0%;
+	 		border-radius: 1px;
+	 	}
+    </style>
+</head>
+<body ng-app="tuto" ng-controller="MainCtrl">
+	<nav class="navbar navbar-default " ng-controller="NavCtrl" ng-show="isLoggedIn()">
+		<ul class="nav navbar-nav pull-left">
+			<li ng-show="isLoggedIn()"><a href="/#/home">Inicio</a></li>
+			<li ng-show="isLoggedIn()" class="dropdown">
+          		<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Clientes <span class="caret"></span></a>
+          		<ul class="dropdown-menu">
+            		<li><a href="/#/crearclientes">Añadir clientes </a></li>
+            		<li role="separator" class="divider"></li>
+            		<li><a href="/#/clientes">Ver clientes</a></li>
+          		</ul>
+        	</li>
+        	<li ng-show="isLoggedIn()" class="dropdown">
+          		<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Productos <span class="caret"></span></a>
+          		<ul class="dropdown-menu">
+            		<li><a href="/#/imagenes">Añadir productos </a></li>
+            		<li role="separator" class="divider"></li>
+            		<li><a href="/#/productos">Ver productos</a></li>
+          		</ul>
+        	</li>
+        	<li ng-show="isLoggedIn()" class="dropdown">
+          		<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Cotizaciones <span class="caret"></span></a>
+          		<ul class="dropdown-menu">
+            		<li><a href="/#/cotizacion">Crear cotizaciones </a></li>
+            		<li role="separator" class="divider"></li>
+            		<li><a href="/#/cotizaciones">Ver cotizaciones</a></li>
+          		</ul>
+        	</li>
+		</ul>
+		<ul class="nav navbar-nav pull-right">
+			<li ng-show="isLoggedIn()"><a style="font-size:1.5em; color:#2E4B5C">{{currentUser()}}</a></li>
+			<li style="background:#D13C4C;" ng-show="isLoggedIn()"><a ng-click="logOut()"><span style="font-size:1.6em; color:#fff; cursor:pointer;" class="glyphicon glyphicon-off"></span></a></li>
+			<li ng-hide="isLoggedIn()"><a href="/#/login">Iniciar Sesión</a></li>
+			<li ng-hide="isLoggedIn()"><a href="/#/register">Registrarse</a></li>
+		</ul>
+	</nav>
+	<div class="row" style="margin: 0px">
+	    <div class="col-md-10 col-md-offset-1">
+			<ui-view  style="background: #fff;"></ui-view>
+		</div>
+	</div>
+	
+	<!-- INDEX TEMPLATE -->
+	<script type="text/ng-template" id="/index.html">
+		<div class="row">
+			<div class="text-center col-lg-6 text-center" style="margin-top:12%;">
+				<img src="/images/iq.png">
+				<div class="page-header text-center">
+  					<h1 style="color:#3C3C3B;">CRM / IQboard</h1>
+				</div>
+				<a href="/#/login"><button class="btn btn-success" ng-hide="isLoggedIn()">Iniciar Sesión</button></a>
+				<a href="/#/register"><button class="btn btn-info" ng-hide="isLoggedIn()">Registrarse</button></a>
+				<a href="/#/register"><button class="btn btn-success" ng-show="isLoggedIn()" style="background:none; border-width: 2px;"><span class="glyphicon glyphicon-circle-arrow-up" style="font-size:3em; color:#3c763d;"></span></button></a>
+			</div>
+			<div class="text-center col-lg-6" style="margin-top:12%;"></div>
+		</div>
+	</script>
+	
+	<!-- HOME TEMPLATE -->
+	<script type="text/ng-template" id="/home.html">
+		<div class="row" ng-controller="MainCtrl">
+			<div class="text-center col-md-12" style="margin: 7% 0; ">
+				<img class="hide" src="/images/iq.png">
+			 	<h1>CRM IQBoard</h1>
+			</div>
+			<div class="page-header text-center col-md-4">
+				<a href="/#/crearclientes" class="boton col-md-10 col-md-offset-1" style="text-decoration: none;">
+					<p class="glyphicon glyphicon-user" style="font-size:3em;"></p>
+					<p style="font-size:1.5em; ">Registrar cliente</p>
+				</a>
+			</div>
+			<div class="page-header text-center col-md-4">
+				<a href="/#/imagenes" class="boton col-md-10 col-md-offset-1" style="text-decoration: none;">
+					<p class="glyphicon glyphicon-tags" style="font-size:3em;"></p>
+					<p style="font-size:1.5em;">Registrar producto</p>
+				</a>
+			</div>
+			<div class="page-header text-center col-md-4">
+				<a href="/#/cotizacion" class="boton col-md-10 col-md-offset-1" style="text-decoration: none;">
+					<p class="glyphicon glyphicon-tasks" style="font-size:3em;"></p>
+					<p style="font-size:1.5em;">Cotización</p>
+				</a>
+			</div>
+		</div>
+	</script>
+
+	<!-- REGISTRER TEMPLATE -->
+	<script type="text/ng-template" id="/register.html">
+		<div class="page-header text-center">
+			<h1>CRM IQBoard</h1>
+		</div>
+		<form ng-submit="register()" style="margin-top: 30px;">
+			<h3>Registro:</h3>
+			<div class="form-group">
+				<input type="email" class="form-control" placeholder="Correo IQ Board" ng-model="user.username" required></input>
+			</div>
+			<div class="form-group">
+				<input type="password" class="form-control" placeholder="contraseña" ng-model="user.password" required></input>
+			</div>
+			<button type="submit" class="btn btn-primary">Registrarse</button>
+		</form>
+	</script>
+
+	<!-- LOGIN TEMPLATE -->
+	<script type="text/ng-template" id="/login.html">
+		<div class="page-header">
+			<h1>CRM IQBoard</h1>
+		</div>
+		<div ng-show="error" class="alert alert-danger row">
+			<span>{{error.message}}</span>
+		</div>
+		<form ng-submit="logIn()" style="margin-top: 30px;">
+			<h3>Iniciar Sesión:</h3>
+			<div class="form-group">
+				<input type="email" class="form-control" placeholder="Correo IQ Board" ng-model="user.username" required></input>
+			</div>
+			<div class="form-group">
+				<input type="password" class="form-control" placeholder="contraseña" ng-model="user.password" required></input>
+			</div>
+			<button type="submit" class="btn btn-primary">Entrar</button>
+		</form>
+	</script>
+
+	<!-- POST TEMPLATE - NO ESTA-->
+	<script type="text/ng-template" id="/post.html">
+		<div class="page-header">
+	    	<h3>
+	    		<a ng-show="post.link" href="{{post.link}}">{{post.title}}</a>
+	      		<span ng-hide="post.link">{{post.title}}</span>
+	    	</h3>
+		</div>
+		<div ng-repeat="comment in post.comments | orderBy:'-upvotes'">
+	    	<span class="glyphicon glyphicon-thumbs-up" ng-click="incrementUpvotes(comment)"></span>
+	      	{{comment.upvotes}} - by {{comment.author}}
+	    	<span style="font-size:20px; margin-left:10px;">
+	      		{{comment.body}}
+	   		</span>
+	  	</div>
+		<form name="comment" ng-submit="comment.$valid && addComment()" ng-show="isLoggedIn()" style="margin-top:30px;" novalidate>
+	 		<h3>Add a new comment</h3>
+			<div class="form-group">
+	 			<input type="text" class="form-control" placeholder="comment!" ng-model="body" required=""></input>
+	 		</div>
+	 		<button type="submit" class="btn btn-primary" >Comment</button>
+	 		<div ng-hide="isLoggedIn()">
+  				<h3>You need to <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> before you can comment.</h3>
+			</div>
+	 	</form>
+	</script>
+
+	<!-- CREAR CLIENTES -->
+	<script type="text/ng-template" id="/crearclientes.html">
+		<div class="row" style="background: rgba(245,245,245,.8); padding:2%; border-radius:7px;">
+			<div class="page-header text-center">
+  				<h1>Crear cliente</h1>
+			</div>
+			<div class="row">
+				<div class="col-md-10 col-md-offset-1">
+					<form name="" ng-submit="addCliente()">
+        				<div class="form-group col-md-12">
+            				<label class="control-label" for="name">Persona natural / juridica</label><br>
+              				<input type="radio" ng-model="tipo" name="persona" value="natural" style="margin-right:2%;" checked> Natural
+  			  				<input type="radio" ng-model="tipo" name="persona" value="juridica" style="margin-left:2%; margin-right:2%;"> Juridica<br>
+        				</div>
+         				<div class="form-group col-md-6">
+            				<label class="control-label" for="address">Nombre / Razón social</label>
+            				<input name="name" type="text" id="name" class="form-control" ng-model="name" placeholder="Nombre / Razón social" required>
+        				</div>
+        				<div class="form-group col-md-6">
+        					<div class="col-md-7" style="padding-left: 0px;">
+           						<label class="control-label" for="nit">Nit</label>
+           						<input name="nit" type="number" id="nit" class="form-control" ng-model="nit" placeholder="Nit" maxlength="10">
+           					</div>
+           					<div class="col-md-2" style="padding-left: 0px;">
+           						<label class="control-label" for="div">- DIV</label>
+           						<input name="div" type="number" id="div" class="form-control" ng-model="div" placeholder="DIV" maxlength="1">
+           					</div>
+           					<div class="col-md-9"></div>
+        				</div>
+        				<div class="form-group col-md-6">
+            				<label class="control-label" for="address">Dirección</label>
+            				<input name="address" type="text" id="address" class="form-control" ng-model="address" placeholder="Dirección">
+        				</div>
+        				<div class="form-group col-md-6">
+            				<label class="control-label" for="tel">Telefono</label>
+            				<input name="tel" type="text" id="tel" class="form-control" ng-model="tel" placeholder="Telefono">
+        				</div>
+        				<div class="form-group col-md-6">
+            				<label class="control-label" for="tel">Clase</label>
+            				<select class="form-control" ng-model="clase" name="clase">
+            					<option value="Distribuidor">Distribuidor</option>
+            					<option value="Integrador">Integrador</option>
+            					<option value="Publico">Público</option>
+            				</select>
+        				</div>
+        				<div class="form-group col-md-6">
+            				<label class="control-label" for="ciudad">Ciudad</label>
+            				<input name="ciudad" type="text" id="ciudad" class="form-control" ng-model="ciudad" placeholder="Ciudad">
+        				</div>
+        				<div class="form-group col-md-12">
+        					<h3 class="text-center">Personas de contacto</h3>
+        					<table class="table">
+        						<thead>
+        							<tr>
+        								<th><label class="control-label" for="nombreContacto">Nombre</label></th>
+        								<th><label class="control-label" for="cel">Celular</label></th>
+        								<th><label class="control-label" for="email">Email</label></th>
+        							</tr>
+        						</thead>
+        						<tbody>
+        							<tr ng-repeat="contacto in contactos">
+        								<td><input name="nombreContacto" type="text" id="nombreContacto" class="form-control" ng-model="contacto.nombreContacto" placeholder="Nombre"></td>
+        								<td><input name="cel" type="number" id="cel" class="form-control" ng-model="contacto.cel" placeholder="Celular"</td>
+        								<td><input name="email" type="text" id="email" class="form-control" ng-model="contacto.email" placeholder="Email"></td>
+        								<!--<td><span class="glyphicon glyphicon-plus" style="vertical-align: -webkit-baseline-middle" ng-click="addNewContacto()"></span></td>
+										<td><span class="glyphicon glyphicon-minus" style="vertical-align: -webkit-baseline-middle" ng-show="!$first" ng-click="removeContacto()"></span></td> -->
+        							</tr>
+        						</tbody>
+        					</table>
+        				</div>
+        				<div class="form-group text-center col-md-12">
+          					<button type="submit" class="btn btn-success">Registrar Cliente</button>
+        				</div>
+    				</form>
+    			</div>
+    		</div>
+		</div>
+	</script>
+
+	<!-- VER LISTA CLIENTES COMPLETOS -->
+	<script type="text/ng-template" id="/clientes.html">
+		<div class="row" style="background: rgba(245,245,245,.8); padding:2%; border-radius:7px;">
+			<div class="page-header text-center">
+  				<h1>Clientes</h1>
+			</div>
+			<div ng-if="client.length == 0" class="alert alert-warning row text-center">
+				<h3>Tu lista de clientes esta vacia</h3>
+				<h4>agregue un nuevo <a href="/#/crearclientes"><strong>cliente</strong></a> ahora</h4>
+			</div>
+			<div class="col-md-10 col-md-offset-1">
+	   			<table class="table table-bordered table-hover">
+					<div class="row">
+            			<div class="col-md-8">
+              				<h3><a>Página: {{ currentPage }}</a></h3>
+            			</div>
+            			<div class="col-md-4 text-right">
+              				<label for="search"></label>
+              				<input ng-model="s.name" id="search" class="form-control" placeholder="Buscar cliente">
+            			</div>
+          			</div>
+         			<br>
+     				<thead>
+     					<tr class="text-center">
+         					<td colspan = 7>Datos cliente</td>
+         					<td colspan = 3>Persona de contacto</td>
+         				</tr>
+         				<tr class="active text-center" style="border-radius: 5%">
+             	 			<td>Tipo de cliente</td>
+                 			<td>Nombre</td>
+                 			<td>Dirección</td>
+                 			<td>Telefono</td>
+                 			<td>Nit</td>
+                 			<td>Clase</td>
+                 			<td>Ciudad</td>
+                 			<td>Nombre</td>
+                 			<td>Celular</td>
+                 			<td>Email</td>
+             			</tr>
+         			</thead>
+         			<tbody>
+						<tr dir-paginate="cliente in client | filter:s:strict | itemsPerPage: pageSize | orderBy : 'name'" current-page="currentPage" class="active text-center">
+				 			<td>{{cliente.tipo}}</td>
+                 			<td>{{cliente.name}}</td>
+                 			<td>{{cliente.address}}</td>
+                 			<td>{{cliente.tel}}</td>
+                 			<td>{{cliente.numnit.nit}} - {{cliente.numnit.div}}</td>
+                 			<td>{{cliente.clase}}</td>
+                 			<td>{{cliente.ciudad}}</td>
+                 			<td>{{cliente.persona[0].nombreContacto}}</td>
+                 			<td>{{cliente.persona[0].cel}}</td>
+                 			<td>{{cliente.persona[0].email}}</td>
+                 			<td class="default" style=" width: 4%">
+                 				<a href="#/vercliente/{{cliente._id}}" style="color: #000" disabled><span class="glyphicon glyphicon-eye-open" style="font-size:2em; cursor: pointer;"></span></a>
+                 			</td>
+                 			<td class="info" style=" width: 4%"> 
+			 					<a href="#/editarcliente/{{cliente._id}}"><span class="glyphicon glyphicon-pencil" style="font-size:2em; cursor: pointer;"></span></a>
+                 			</td>
+                 			<td class="danger" style=" width: 4%">
+                 				<span data-toggle="modal" ng-click="clienteActual(cliente)" data-target="#confirmDelete" class="glyphicon glyphicon-remove-circle" style="font-size:2em; color: #D13C4C; cursor: pointer;"></span>
+                 			</td>
+						</tr>
+					</tbody>
+     			</table>
+     		</div>
+     		<div class="other-controller">
+          		<div class="text-center">
+          			<dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="/stylesheets/dirPagination.tpl.html"></dir-pagination-controls>
+          		</div>
+        	</div>
+	    </div>
+	   	<div class="modal fade" id="confirmDelete" tabindex="-1" role="dialog">
+  			<div class="modal-dialog modal-sm">
+    			<div class="modal-content">
+      				<div class="text-center" style="padding: 5%;">
+      					<h4 class="modal-title" style="margin-bottom: 5%;">¿Realmente desea borrar el cliente?</h4>
+        				<button type="button" class="btn btn-info" data-dismiss="modal" ng-click="cerrar()">Cancelar</button>
+        				<button type="button" class="btn btn-danger" data-dismiss="modal" ng-click="deleteOne()">Borrar</button>
+      				</div>
+    			</div><!-- /.modal-content -->
+  			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+	</script>
+
+	<!-- EDITAR CLIENTES -->
+	<script type="text/ng-template" id="/editarcliente.html">
+		<div class="row" style="background: rgba(245,245,245,.8); padding:2%; border-radius:7px;" ng-show="!editado">
+			<div class="page-header text-center">
+		  		<h1>Editar cliente</h1>
+			</div>
+			<div class="row">
+				<div class="col-md-10 col-md-offset-1">
+					<form name="" ng-submit="editarCliente()">
+		        		<div class="form-group col-md-12">
+            				<label class="control-label" for="name">Persona natural / juridica</label><br>
+              				<input type="radio" ng-model="tipo" name="persona" value="natural" style="margin-right:2%;" checked> Natural
+  			  				<input type="radio" ng-model="tipo" name="persona" value="juridica" style="margin-left:2%; margin-right:2%;"> Juridica<br>
+        				</div>
+         				<div class="form-group col-md-6">
+            				<label class="control-label" for="address">Nombre / Razón social</label>
+            				<input name="name" type="text" id="name" class="form-control" ng-model="name" placeholder="Nombre / Razón social" required>
+        				</div>
+        				<div class="form-group col-md-6">
+        					<div class="col-md-7" style="padding-left: 0px;">
+           						<label class="control-label" for="nit">Nit</label>
+           						<input name="nit" type="number" id="nit" class="form-control" ng-model="nit" placeholder="Nit" maxlength="10">
+           					</div>
+           					<div class="col-md-2" style="padding-left: 0px;">
+           						<label class="control-label" for="div">- DIV</label>
+           						<input name="div" type="number" id="div" class="form-control" ng-model="div" placeholder="DIV" maxlength="1">
+           					</div>
+           					<div class="col-md-9"></div>
+        				</div>
+        				<div class="form-group col-md-6">
+            				<label class="control-label" for="address">Dirección</label>
+            				<input name="address" type="text" id="address" class="form-control" ng-model="address" placeholder="Dirección">
+        				</div>
+        				<div class="form-group col-md-6">
+            				<label class="control-label" for="tel">Telefono</label>
+            				<input name="tel" type="text" id="tel" class="form-control" ng-model="tel" placeholder="Telefono">
+        				</div>
+        				<div class="form-group col-md-6">
+            				<label class="control-label" for="tel">Clase</label>
+            				<select class="form-control" ng-model="clase" name="clase">
+            					<option value="Distribuidor">Distribuidor</option>
+            					<option value="Integrador">Integrador</option>
+            					<option value="Publico">Público</option>
+            				</select>
+        				</div>
+        				<div class="form-group col-md-6">
+            				<label class="control-label" for="ciudad">Ciudad</label>
+            				<input name="ciudad" type="text" id="ciudad" class="form-control" ng-model="ciudad" placeholder="Ciudad">
+        				</div>
+        				<div class="form-group col-md-12">
+        					<h3 class="text-center">Personas de contacto</h3>
+        					<table class="table">
+        						<thead>
+        							<tr>
+        								<th><label class="control-label" for="nombreContacto">Nombre</label></th>
+        								<th><label class="control-label" for="cel">Celular</label></th>
+        								<th><label class="control-label" for="email">Email</label></th>
+        							</tr>
+        						</thead>
+        						<tbody>
+        							<tr ng-repeat="contacto in contactos">
+        								<td><input name="nombreContacto" type="text" id="nombreContacto" class="form-control" ng-model="contacto.nombreContacto" placeholder="Nombre"></td>
+        								<td><input name="cel" type="number" id="cel" class="form-control" ng-model="contacto.cel" placeholder="Celular"</td>
+        								<td><input name="email" type="text" id="email" class="form-control" ng-model="contacto.email" placeholder="Email"></td>
+        								<!-- <td><span class="glyphicon glyphicon-plus" style="vertical-align: -webkit-baseline-middle" ng-click="addNewContacto()"></span></td>
+										<td><span class="glyphicon glyphicon-minus" style="vertical-align: -webkit-baseline-middle" ng-show="!$first" ng-click="removeContacto()"></span></td> -->
+        							</tr>
+        						</tbody>
+        					</table>
+        				</div>
+        				<div class="form-group text-center col-md-12">
+          					<button type="submit" class="btn btn-success">Actualizar Cliente</button>
+        				</div>
+    				</form>
+		    	</div>
+			</div>
+		</div>
+		<div ng-show="editado">
+			<div class="alert alert-success col-md-8 col-md-offset-2 text-center">
+				<h3>Cliente actualizado!</h3>
+				<hr>
+				<p><span style="font-size: 1.2em;  font-weight: 400;">Tipo cliente </span>{{tipo}}</p>
+				<p><span style="font-size: 1.2em;  font-weight: 400;">Nombre cliente: </span>{{name}}</p>
+				<p><span style="font-size: 1.2em;  font-weight: 400;">Nit - div: </span>{{nit}} - {{div}}</p>
+				<p><span style="font-size: 1.2em;  font-weight: 400;">Dirección: </span>{{address}}</p>
+				<p><span style="font-size: 1.2em;  font-weight: 400;">Telefono: </span>{{tel}}</p>
+				<p><span style="font-size: 1.2em;  font-weight: 400;">Clase: </span>{{clase}}</p>
+				<p><span style="font-size: 1.2em;  font-weight: 400;">Ciudad: </span>{{ciudad}}</p>
+				<h4>Persona de contacto</h4>
+				<p><span style="font-size: 1.2em;  font-weight: 400;">Nombre: </span>{{contactos[0].nombreContacto}}</p>
+				<p><span style="font-size: 1.2em;  font-weight: 400;">Celular: </span>{{contactos[0].cel}}</p>
+				<p><span style="font-size: 1.2em;  font-weight: 400;">Email: </span>{{contactos[0].email}}</p>
+				<div class="col-md-8 col-md-offset-2 text-center" style="margin-top: 2%;">
+					<a href="#/clientes">
+					<button class="btn btn-success glyphicon glyphicon-ok-sign" style="font-size:2em; position: relative;"></button>
+					</a>
+				</div>
+			</div>
+		</div>
+	</script>
+
+	<!-- VER CLIENTES INDIVIDUAL-->
+	<script type="text/ng-template" id="/vercliente.html">
+		<div class="row" style="background: rgba(245,245,245,.8); border-radius:7px;">
+			<div class="col-md-12 col-sm-12" style="background-color: rgba(260, 260, 260, 1); padding: 2%;">
+				<div class="page-header text-center">
+					<h1>{{cliente.name}}</h1>
+				</div>
+				<div class="col-md-6 col-sm-6">
+					<p><span><strong>Persona: </strong></span>{{cliente.tipo}}</p>
+					<p><span><strong>Direccion: </strong></span>{{cliente.address}}</p>
+					<p><span><strong>Ciudad: </strong></span>{{cliente.ciudad}}</p>
+				</div>
+				<div class="col-md-6 col-sm-6">
+					<p><span><strong>NIT / CC: </strong></span>{{cliente.numnit.nit}} - {{cliente.numnit.div}}</p>
+					<p><span><strong>Telefono: </strong></span>{{cliente.tel}}</p>
+					<p><span><strong>Clase: </strong></span>{{cliente.clase}}</p>
+				</div>
+				<div class="col-md-12 col-sm-12 text-center">
+					<hr>
+					<h4 style="margin-top: 0px;">Persona de contacto</h4>
+					<ol class="breadcrumb">
+  						<li><span><strong>Nombre: </strong>{{cliente.persona[0].nombreContacto}}</span></li>
+  						<li><span><strong>Telefono: </strong>{{cliente.persona[0].cel}}</span></li>
+  						<li><span><strong>Email: </strong>{{cliente.persona[0].email}}</span></li>
+					</ol>
+				</div>
+			</div>
+			<div class="col-md-12 col-sm-12" style="padding: 2%;">
+				<div class="alert alert-warning text-center">
+					<h3 ng-show="cotizacion.length == 0">Este cliente no tiene ninguna cotización</h3>
+					<h4>agregue una nueva cotización ahora</h4>
+					<a href="#/cotizacion"><span class="glyphicon glyphicon-plus-sign" style="font-size: 3em; cursor: pointer;"></span></a>
+				</div>
+			</div>
+			<div>
+				<div class="page-header text-center">
+					<h1>COTIZACIONES</h1>
+				</div>
+				<div>
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th class="text-center"># Cotización</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr class="text-center" ng-repeat="coti in cotizacion" ng-show="coti.cliente == cliente.name">
+									<td>COT / 2016-{{coti.consecutivo.numeroconsecutivo}}</td>
+									<td><a href="#/vercoti/{{coti._id}}" style="color: #000"><span class="glyphicon glyphicon-eye-open" style="font-size:2em; cursor: pointer;"></span></a></td>
+									<td> 
+			 							<a href="#/editarcotizacion/{{coti._id}}"><span class="glyphicon glyphicon-pencil" style="font-size:2em; cursor: pointer;"></span></a>
+                 					</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</script>
+
+	<!-- VER COTIZACIONES POR CLIENTE -->
+	<script type="text/ng-template" id="/vercoti.html">
+		<div class="content" style="background: rgba(245,245,245,.8); padding:2%; border-radius:7px;">
+			<div class="row">
+				<div class="col-md-6 col-sm-6 col-xs-6">
+					<label for="fecha">Fecha</label>
+					<p>{{cotizaciones.fecha | date:"dd-MM-yyyy"}}</p>
+				</div>
+				<div class="col-md-6 col-sm-6 col-xs-6 text-right">
+					<label for="consecutivo">Consecutivo</label>
+					<br>
+					<span ng-model="anoconse">{{cotizaciones.consecutivo.anoconse | date:'yyyy'}}</span>-<span>{{cotizaciones.consecutivo.numeroconsecutivo}}</span>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-6 col-sm-6 col-xs-6">
+					<label class="control-label" for="cliente">Cliente</label>
+					<p>{{cotizaciones.cliente}}</p>
+					<label class="control-label" for="ciduad">Ciudad</label>
+					<p ng-model="ciudad">{{cotizaciones.ciudad}}</p>
+					<label class="control-label" for="contacto">Contacto</label>
+					<p ng-model="contacto">{{cotizaciones.contacto}}</p>
+					<label class="control-label" for="telefono">Telefono</label>
+					<p><span ng-model="cel">{{cotizaciones.telefono.cel}}</span> - <span ng-model="tel">{{cotizaciones.telefono.tel}}</span></p>
+				</div>
+				<div class="col-md-6 col-sm-6 col-xs-6">
+					<label class="control-label" for="nit">Nit - Div</label>
+					<p><span ng-model="nit">{{cotizaciones.numnit.nit}}</span> - <span ng-model="div">{{cotizaciones.numnit.div}}</span></p>
+					<label class="control-label" for="direccion">Dirección</label>
+					<p ng-model="direccion">{{cotizaciones.direccion}}</p>
+					<label class="control-label" for="telefono">Email</label>
+					<p ng-model="email">{{cotizaciones.email}}</p>
+				</div>
+			</div>
+			<hr>
+			<div class="table-responsive">
+				<table class="table">
+					<thead>
+						<tr>
+							<th class="text-center"><label class="control-label" for="item">Item</label></th>
+							<th class="text-center"><label class="control-label" for="referencia">Referencia</label></th>
+							<th class="text-center"><label class="control-label" for="imagen">Imagen</label></th>
+							<th class="text-center"><label class="control-label" for="descripcion">Descripción</label></th>
+							<th class="text-center"><label class="control-label" for="cantidad">Cantidad</label></th>
+							<th class="text-center"><label class="control-label" for="precio">Precio</label></th>
+							<th class="text-center"><label class="control-label" for="iva">Iva</label></th>
+							<th class="text-center"><label class="control-label" for="subtotal">Subtotal</label></th>
+							<td></td>
+							<td></td>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="coti in cotizaciones.productos">
+							<th class="text-center"><p style="margin-top: 25%;">{{coti.id}}</p></th>
+							<th class="text-center"><p>{{coti.referencia}}</p></th>
+							<th class="text-center" style="width: 240px"><img src="../images/uploads/{{cotizaciones.productos[0].image.name}}" style="width: 60%"></th>
+							<th class="text-center"><p>{{coti.descripcion}}</p></th>
+							<th class="text-center"><p>{{coti.cantidad}}</p></th>
+							<th class="text-center"><p>{{coti.auxclase}}</p></th>
+							<th class="text-center"><p>{{coti.iva}} %</p></th>
+							<th class="text-center"><p>{{coti.subtotal}}</p></th>
+						</tr>
+						<tr>
+							<td colspan=6 style="border-top: none;"></td>
+							<td class="text-right"><label for="subtotal">Subtotal</label></td>
+							<td class="texte-center"><p>{{cotizaciones.subtotal}}</p></td>
+						</tr>
+						<tr>
+							<td colspan=6 style="border-top: none;"></td>
+							<td class="text-right"><label for="iva">IVA</label></td>
+							<td><p>{{cotizaciones.iva}}</p></td>
+						</tr>
+						<tr>
+							<td colspan=6 style="border-top: none;"></td>
+							<td class="text-right"><label for="total">Total</label></td>
+							<td><p>{{cotizaciones.total}}</p></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</script>
+
+	<!-- CREAR PRODUCTOS -->
+	<script type="text/ng-template" id="/imagenes.html">
+		<div style="background: rgba(245,245,245,.8); padding:2%; border-radius:7px;">
+			<div class="page-header text-center">
+				<h1>Crear productos</h1>
+			</div>
+			<div class="row">
+				<div class="col-md-6">
+					<div class="page-header text-left">
+						<h4>Productos</h4>
+					</div>
+					<label class="control-label">Referencia</label>
+					<input class="form-control" type="text" ng-model="referencia">
+					<label class="control-label">Marca</label>
+					<input class="form-control" type="text" ng-model="marca">
+					<label class="control-label">Descripción</label>
+					<textarea class="form-control" type="text" ng-model="descripcion"></textarea>
+					<div class="page-header text-left">
+						<h4>Precios</h4>
+					</div>
+					<div class="table-responsive">
+						<table class="table">
+							<thead>
+								<tr>
+									<th class="text-center"><label class="control-label">Distribuidor</label></th>
+									<th class="text-center"><label class="control-label">Integrador</label></th>
+									<th class="text-center"><label class="control-label">Público</label></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td class="text-center">
+										<div class="input-group">
+      										<div class="input-group-addon">$</div>
+      										<input type="text" class="form-control" ng-model="precioDistribuidor">
+    									</div>
+									</td>
+									<td class="text-center">
+										<div class="input-group">
+      										<div class="input-group-addon">$</div>
+      										<input type="text" class="form-control" ng-model="precioIntegrador">
+    									</div>
+									</td>
+									<td class="text-center">
+										<div class="input-group">
+      										<div class="input-group-addon">$</div>
+      										<input type="text" class="form-control" ng-model="precioPublico">
+    									</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="page-header text-left">
+						<h4>Impuestos</h4>
+					</div>
+					<div class="col-md-4">
+						<label class="control-label">IVA</label>
+						<div class="input-group">
+      						<input type="text" class="form-control" ng-model="iva">
+      						<div class="input-group-addon">%</div>
+    					</div>
+    				</div>
+				</div>
+				<div class="col-md-6 text-center">
+					<div class="page-header text-left">
+						<h4>Imagen del producto</h4>
+					</div>
+					<div class="" ng-repeat="f in selectedFiles">
+						<img ng-show="dataUrls[$index]" ng-src="{{dataUrls[$index]}}" style="width:50%">
+					</div>
+					<br>
+					<input style="margin:auto" type="file" ng-file-select="onFileSelect($files)">
+				</div>
+				<div class="col-md-12 text-center" ng-repeat="f in selectedFiles">
+					<button class="btn btn-success" ng-click="start($index)">Registrar</button>
+				</div>   
+			</div>
+		</div>
+	</script>
+
+	<!-- VER PRODUCTOS -->
+	<script type="text/ng-template" id="/productos.html">
+		<div class="row" style="background: rgba(245,245,245,.6); padding:2%; border-radius:7px;">
+			<div class="page-header text-center">
+				<h1>Productos</h1>
+			</div>
+			<div class="col-md-12">
+				<div class="table-responsive">
+					<table class="table table-bordered">
+						<div class="row">
+	            			<div class="col-md-4 col-md-offset-4 text-right">
+	              				<label for="search"></label>
+	              				<input ng-model="s.referencia" id="search" class="form-control" placeholder="Buscar producto">
+	            			</div>
+	          			</div>
+	         			<br>
+						<thead>
+							<tr>
+								<th class="text-center"><label class="control-label">Referencia</label></th>
+								<th class="text-center"><label class="control-label">Marca</label></th>
+								<th class="text-center"><label class="control-label">Descripción</label></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr  dir-paginate="producto in producto | filter:s:strict | itemsPerPage: pageSize | orderBy : 'name'" current-page="currentPage" class="active text-center">
+								<td><p>{{producto.referencia}}</p></td>
+								<td><p>{{producto.marca}}</p></td>
+								<td><p>{{producto.descripcion}}</p></td>
+	                 			<td style=" width: 4%"> 
+				 					<a href="#/editarproducto/{{producto._id}}">
+				 						<span class="glyphicon glyphicon-pencil" style="font-size:2em; cursor: pointer;"></span>
+				 					</a>
+	                 			</td>
+	                 			<td style=" width: 4%">
+                 					<span data-toggle="modal" ng-click="productoActual(producto)" data-target="#confirmDelete" class="glyphicon glyphicon-remove-circle" style="font-size:2em; color: #D13C4C; cursor: pointer;"></span>
+                 				</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade" id="confirmDelete" tabindex="-1" role="dialog">
+  			<div class="modal-dialog modal-sm">
+    			<div class="modal-content">
+      				<div class="text-center" style="padding: 5%;">
+      					<h4 class="modal-title" style="margin-bottom: 5%;">¿Realmente desea borrar el cliente?</h4>
+        				<button type="button" class="btn btn-info" data-dismiss="modal" ng-click="cerrar()">Cancelar</button>
+        				<button type="button" class="btn btn-danger" data-dismiss="modal" ng-click="deleteOne()">Borrar</button>
+      				</div>
+    			</div><!-- /.modal-content -->
+  			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+	</script>
+
+	<!-- EDITAR PRODUCTO -->
+	<script type="text/ng-template" id="/editarproducto.html">
+		<div class="row" style="background: rgba(245,245,245,.6); padding:2%; border-radius:7px;">
+			<div class="col-md-6">
+					<div class="page-header text-left">
+						<h4>Productos</h4>
+					</div>
+					<label class="control-label">Referencia</label>
+					<input class="form-control" type="text" ng-model="referencia">
+					<label class="control-label">Marca</label>
+					<input class="form-control" type="text" ng-model="marca">
+					<label class="control-label">Descripción</label>
+					<textarea class="form-control" type="text" ng-model="descripcion" style="height: 175px"></textarea>
+					<div class="page-header text-left">
+						<h4>Precios</h4>
+					</div>
+					<div class="table-responsive">
+						<table class="table">
+							<thead>
+								<tr>
+									<th class="text-center"><label class="control-label">Distribuidor</label></th>
+									<th class="text-center"><label class="control-label">Integrador</label></th>
+									<th class="text-center"><label class="control-label">Público</label></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td class="text-center">
+										<div class="input-group">
+      										<div class="input-group-addon">$</div>
+      										<input type="text" class="form-control" ng-model="precioDistribuidor">
+    									</div>
+									</td>
+									<td class="text-center">
+										<div class="input-group">
+      										<div class="input-group-addon">$</div>
+      										<input type="text" class="form-control" ng-model="precioIntegrador">
+    									</div>
+									</td>
+									<td class="text-center">
+										<div class="input-group">
+      										<div class="input-group-addon">$</div>
+      										<input type="text" class="form-control" ng-model="precioPublico">
+    									</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div><div class="page-header text-left">
+						<h4>Impuestos</h4>
+					</div>
+					<div class="col-md-4">
+						<label class="control-label">IVA</label>
+						<div class="input-group">
+      						<input type="text" class="form-control" ng-model="iva">
+      						<div class="input-group-addon">%</div>
+    					</div>
+    				</div>
+				</div>
+				<div class="col-md-6 text-center">
+					<div class="page-header text-left">
+						<h4>Imagen del producto</h4>
+					</div>
+					<p ng-show="!reemplazo"><img src="../images/uploads/{{imagen.name}}"></p>
+					<!-- <div ng-repeat="f in selectedFiles">
+						<img ng-show="dataUrls[$index]" ng-src="{{dataUrls[$index]}}" style="width:50%">
+					</div>
+					<br>
+					<input style="margin: auto;" type="file" ng-file-select="onFileSelect($files)"> -->
+				</div>
+				<div class="col-md-12 text-center">
+					<button class="btn btn-success" ng-click="editarProducto()">Actualizar</button>
+				</div>   
+			</div>
+		</div>
+	</script>
+
+	<!-- COTIZACION -->
+	<script type="text/ng-template" id="/cotizacion.html">
+		<div class="content" style="background: rgba(245,245,245,.8); padding:2%; border-radius:7px;">
+			<form ng-submit="addCotizacion()">
+				<div class="row">
+					<div class="col-md-6 col-sm-6 col-xs-6">
+						<label for="fecha">Fecha</label>
+						<p>{{date | date:"dd-MM-yyyy"}}</p>
+					</div>
+					<div class="col-md-6 col-sm-6 col-xs-6 text-right">
+						<label for="consecutivo">Consecutivo</label>
+						<br>
+						<span ng-model="anoconse">{{date | date:'yyyy'}}</span>-<span>{{consecutivo}}</span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-6 col-sm-6 col-xs-6">
+						<label class="control-label" for="cliente">Cliente <a class="btn btn-info" data-toggle="modal" data-target="#buscarcliente"><span class="glyphicon glyphicon-zoom-in"></span></a></label>
+						<p>{{name}}</p>
+						<label class="control-label" for="ciduad">Ciudad</label>
+						<p ng-model="ciudad">{{aux.ciudad}}</p>
+						<label class="control-label" for="contacto">Contacto</label>
+						<p ng-model="contacto">{{aux.persona[0].nombreContacto}}</p>
+						<label class="control-label" for="telefono">Telefono</label>
+						<p><span ng-model="cel">{{aux.persona[0].cel}}</span> - <span ng-model="tel">{{aux.tel}}</span></p>
+					</div>
+					<div class="col-md-6 col-sm-6 col-xs-6">
+						<label class="control-label" for="nit">Nit - Div</label>
+						<p><span ng-model="nit">{{aux.numnit.nit}}</span> - <span ng-model="div">{{aux.numnit.div}}</span></p>
+						<label class="control-label" for="direccion">Dirección</label>
+						<p ng-model="direccion">{{aux.address}}</p>
+						<label class="control-label" for="telefono">Email</label>
+						<p ng-model="email">{{aux.persona[0].email}}</p>
+					</div>
+				</div>
+				<hr>
+				<div class="table-responsive">
+					<table class="table">
+						<thead>
+							<tr>
+								<th class="text-center"><label class="control-label" for="item">Item</label></th>
+								<th class="text-center"><label class="control-label" for="referencia">Referencia</label></th>
+								<th class="text-center"><label class="control-label" for="imagen">Imagen</label></th>
+								<th class="text-center"><label class="control-label" for="descripcion">Descripción</label></th>
+								<th class="text-center"><label class="control-label" for="cantidad">Cantidad</label></th>
+								<th class="text-center"><label class="control-label" for="precio">Precio</label></th>
+								<th class="text-center"><label class="control-label" for="iva">Iva</label></th>
+								<th class="text-center"><label class="control-label" for="subtotal">Subtotal</label></th>
+								<td></td>
+								<td></td>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="producto in productos">
+								<th class="text-center"><p style="margin-top: 25%;" ng-model="item">{{producto.id}}</p></th>
+								<th class="text-center"><p ng-model="referencia">{{productos[$index].referencia}}</p><a class="btn btn-info" data-toggle="modal" data-target="#buscarproducto"><span class="glyphicon glyphicon-zoom-in"></span></a></th>
+								<th class="text-center" style="width: 240px" ng-model="imagen"><img src="../images/uploads/{{productos[$index].image.name}}" style="width: 60%"></th>
+								<th class="text-justify"><p ng-model="descripcion">{{productos[$index].descripcion}}</p></th>
+								<th class="text-center"><input class="form-control" type="text" ng-model="productos[$index].cantidad" ng-change="cambiocantidad(cantidad, auxProducto);"></th>
+								<th class="text-center"><p ng-model="precio">{{productos[$index].auxclase | currency:'$':0  }}</p></th>
+								<th class="text-center"><p ng-model="iva">{{productos[$index].iva}}%</p></th>
+								<th class="text-center"><p ng-model="subtotal">{{productos[$index].subtotal | currency:'$':0  }}</p></th>
+								<th><span class="glyphicon glyphicon-plus" style="vertical-align: -webkit-baseline-middle" ng-click="addNewProducto()"></span></th>
+								<th><span class="glyphicon glyphicon-minus" style="vertical-align: -webkit-baseline-middle" ng-show="!$first" ng-click="removeProducto(); recalculo();"></span></th>
+							</tr>
+							<tr>
+								<td colspan=6 style="border-top: none;"></td>
+								<td class="text-right"><label for="subtotal">Subtotal</label></td>
+								<td class="texte-center"><p>{{subtotal | currency:'$':0  }}</p></td>
+							</tr>
+							<tr>
+								<td colspan=6 style="border-top: none;"></td>
+								<td class="text-right"><label for="iva">IVA</label></td>
+								<td><p>{{iva | currency:'$':0  }}</p></td>
+							</tr>
+							<tr>
+								<td colspan=6 style="border-top: none;"></td>
+								<td class="text-right"><label for="total">Total</label></td>
+								<td><p>{{total | currency:'$':0 }}</p></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="form-group text-center col-md-12">
+					<button type="submit" class="btn btn-success">Cotizar</button>
+					<a class="btn btn-danger">PDF</a>
+				</div>
+			</form>
+		</div>
+		<!-- modal -->
+		<div class="modal fade" id="buscarcliente" tabindex="-1" role="dialog">
+  			<div class="modal-dialog modal-lg">
+    			<div class="modal-content">
+      				<div class="text-center" style="padding: 5%;">
+      					<h4 class="modal-title" style="margin-bottom: 5%;">Clientes</h4>
+      					<table class="table">
+      						<thead>
+      							<tr>
+      								<th><label>Nombre</label></th>
+      								<th><label>Dirección</label></th>
+      								<th><label>Telefono</label></th>
+      								<th><label>Nit</label></th>
+      								<th><label>Ciudad</label></th>
+      							</tr>
+      						</thead>
+      						<tbody>
+      							<tr ng-repeat="clientes in client" class="active text-center">
+                 					<td>{{clientes.name}}</td>
+                 					<td>{{clientes.address}}</td>
+                 					<td>{{clientes.tel}}</td>
+                 					<td>{{clientes.numnit.nit}} - {{clientes.numnit.div}}</td>
+                 					<td>{{clientes.ciudad}}</td>
+                 					<td> 
+			 							<a ng-click="selcliente(clientes.name)" data-dismiss="modal" class="btn btn-success"><span class="glyphicon glyphicon-ok" style="cursor: pointer;"></span></a>
+                 					</td>
+								</tr>
+      						</tbody>
+      					</table>
+      				</div>
+    			</div><!-- /.modal-content -->
+  			</div><!-- /.modal-dialog -->
+		</div>
+		<!-- /modal -->
+		<!-- modal -->
+		<div class="modal fade" id="buscarproducto" tabindex="-1" role="dialog">
+  			<div class="modal-dialog modal-lg">
+    			<div class="modal-content">
+      				<div class="text-center" style="padding: 5%;">
+      					<h4 class="modal-title" style="margin-bottom: 5%;">Prodcutos</h4>
+      					<table class="table">
+      						<thead>
+      							<tr>
+      								<th><label>Referencia</label></th>
+      								<th><label>Marca</label></th>
+      								<th><label>Descripción</label></th>
+      							</tr>
+      						</thead>
+      						<tbody>
+      							<tr ng-repeat="producto in producto" class="active text-center">
+                 					<td>{{producto.referencia}}</td>
+                 					<td>{{producto.marca}}</td>
+                 					<td>{{producto.descripcion}}</td>
+                 					<td> 
+			 							<a ng-click="selreferencia(producto.referencia, producto.iva)" data-dismiss="modal" class="btn btn-success"><span class="glyphicon glyphicon-ok" style="cursor: pointer;"></span></a>
+                 					</td>
+								</tr>
+      						</tbody>
+      					</table>
+      				</div>
+    			</div><!-- /.modal-content -->
+  			</div><!-- /.modal-dialog -->
+		</div>
+		<!-- /modal -->
+	</script>
+
+	<!-- EDITAR COTIZACIONES -->
+	<script type="text/ng-template" id="/editarcotizacion.html">
+		<div class="row" style="background: rgba(245,245,245,.8); padding:2%; border-radius:7px;" ng-show="!editado">
+			<div class="page-header text-center">
+		  		<h1>Editar cotizacion</h1>
+			</div>
+			<div class="row">
+				<div class="col-md-10 col-md-offset-1">
+					<form ng-submit="editarCotizacion()">
+				<div class="row">
+					<div class="col-md-6 col-sm-6 col-xs-6">
+						<label for="fecha">Fecha</label>
+						<p>{{fecha | date:"dd-MM-yyyy"}}</p>
+					</div>
+					<div class="col-md-6 col-sm-6 col-xs-6 text-right">
+						<label for="consecutivo">Consecutivo</label>
+						<br>
+						<span>{{anoconse | date:'yyyy'}}</span>-<span>{{numeroconsecutivo}}</span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-6 col-sm-6 col-xs-6">
+						<label class="control-label" for="cliente">Cliente <a class="btn btn-info" data-toggle="modal" data-target="#buscarcliente2"><span class="glyphicon glyphicon-zoom-in"></span></a></label>
+						<p>{{cliente}}</p>
+						<label class="control-label" for="ciduad">Ciudad</label>
+						<p ng-model="ciudad">{{ciudad}}</p>
+						<label class="control-label" for="contacto">Contacto</label>
+						<p ng-model="contacto">{{contacto}}</p>
+						<label class="control-label" for="telefono">Telefono</label>
+						<p><span ng-model="cel">{{cel}}</span> - <span ng-model="tel">{{tel}}</span></p>
+					</div>
+					<div class="col-md-6 col-sm-6 col-xs-6">
+						<label class="control-label" for="nit">Nit - Div</label>
+						<p><span ng-model="nit">{{nit}}</span> - <span ng-model="div">{{div}}</span></p>
+						<label class="control-label" for="direccion">Dirección</label>
+						<p ng-model="direccion">{{direccion}}</p>
+						<label class="control-label" for="telefono">Email</label>
+						<p ng-model="email">{{email}}</p>
+					</div>
+				</div>
+				<hr>
+				<div class="table-responsive">
+					<table class="table">
+						<thead>
+							<tr>
+								<th class="text-center"><label class="control-label" for="item">Item</label></th>
+								<th class="text-center"><label class="control-label" for="referencia">Referencia</label></th>
+								<th class="text-center"><label class="control-label" for="imagen">Imagen</label></th>
+								<th class="text-center"><label class="control-label" for="descripcion">Descripción</label></th>
+								<th class="text-center"><label class="control-label" for="cantidad">Cantidad</label></th>
+								<th class="text-center"><label class="control-label" for="precio">Precio</label></th>
+								<th class="text-center"><label class="control-label" for="iva">Iva</label></th>
+								<th class="text-center"><label class="control-label" for="subtotal">Subtotal</label></th>
+								<td></td>
+								<td></td>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="producto in productos">
+								<th class="text-center"><p style="margin-top: 25%;" ng-model="item">{{producto.id}}</p></th>
+								<th class="text-center"><p ng-model="referencia">{{productos[$index].referencia}}</p><a class="btn btn-info" data-toggle="modal" data-target="#buscarproducto2"><span class="glyphicon glyphicon-zoom-in"></span></a></th>
+								<th class="text-center" style="width: 240px" ng-model="imagen"><img src="../images/uploads/{{productos[$index].image.name}}" style="width: 60%"></th>
+								<th class="text-justify"><p ng-model="descripcion">{{productos[$index].descripcion}}</p></th>
+								<th class="text-center"><input class="form-control" type="text" ng-model="productos[$index].cantidad" ng-change="cambiocantidad(cantidad, auxProducto);"></th>
+								<th class="text-center"><p ng-model="precio">{{productos[$index].auxclase | currency:'$':0  }}</p></th>
+								<th class="text-center"><p ng-model="iva">{{productos[$index].iva}}%</p></th>
+								<th class="text-center"><p ng-model="subtotal">{{productos[$index].subtotal | currency:'$':0  }}</p></th>
+								<th><span class="glyphicon glyphicon-plus" style="vertical-align: -webkit-baseline-middle" ng-click="addNewProducto()"></span></th>
+								<th><span class="glyphicon glyphicon-minus" style="vertical-align: -webkit-baseline-middle" ng-show="!$first" ng-click="removeProducto(); recalculo();"></span></th>
+							</tr>
+							<tr>
+								<td colspan=6 style="border-top: none;"></td>
+								<td class="text-right"><label for="subtotal">Subtotal</label></td>
+								<td class="texte-center"><p>{{subtotal | currency:'$':0  }}</p></td>
+							</tr>
+							<tr>
+								<td colspan=6 style="border-top: none;"></td>
+								<td class="text-right"><label for="iva">IVA</label></td>
+								<td><p>{{iva | currency:'$':0  }}</p></td>
+							</tr>
+							<tr>
+								<td colspan=6 style="border-top: none;"></td>
+								<td class="text-right"><label for="total">Total</label></td>
+								<td><p>{{total | currency:'$':0 }}</p></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="form-group text-center col-md-12">
+					<button type="submit" class="btn btn-success">Cotizar</button>
+					<!-- <a class="btn btn-danger">PDF</a> -->
+				</div>
+			</form>
+		</div>
+		<!-- modal -->
+		<div class="modal fade" id="buscarcliente2" tabindex="-1" role="dialog">
+  			<div class="modal-dialog modal-lg">
+    			<div class="modal-content">
+      				<div class="text-center" style="padding: 5%;">
+      					<h4 class="modal-title" style="margin-bottom: 5%;">Clientes</h4>
+      					<table class="table">
+      						<thead>
+      							<tr>
+      								<th><label>Nombre</label></th>
+      								<th><label>Dirección</label></th>
+      								<th><label>Telefono</label></th>
+      								<th><label>Nit</label></th>
+      								<th><label>Ciudad</label></th>
+      							</tr>
+      						</thead>
+      						<tbody>
+      							<tr ng-repeat="cli in clientes" class="active text-center">
+									<td>{{cli.name}}</td>
+                 					<td>{{cli.address}}</td>
+                 					<td>{{cli.tel}}</td>
+                 					<td>{{cli.numnit.nit}} - {{cli.numnit.div}}</td>
+                 					<td>{{cli.ciudad}}</td>
+                 					<td> 
+			 							<a ng-click="selcliente(cli.name)" data-dismiss="modal" class="btn btn-success"><span class="glyphicon glyphicon-ok" style="cursor: pointer;"></span></a>
+                 					</td>
+								</tr>
+      						</tbody>
+      					</table>
+      				</div>
+    			</div><!-- /.modal-content -->
+  			</div><!-- /.modal-dialog -->
+		</div>
+		<!-- /modal -->
+		<!-- modal -->
+		<div class="modal fade" id="buscarproducto2" tabindex="-1" role="dialog">
+  			<div class="modal-dialog modal-lg">
+    			<div class="modal-content">
+      				<div class="text-center" style="padding: 5%;">
+      					<h4 class="modal-title" style="margin-bottom: 5%;">Prodcutos</h4>
+      					<table class="table">
+      						<thead>
+      							<tr>
+      								<th><label>Referencia</label></th>
+      								<th><label>Marca</label></th>
+      								<th><label>Descripción</label></th>
+      							</tr>
+      						</thead>
+      						<tbody>
+      							<tr ng-repeat="producto in producto" class="active text-center">
+                 					<td>{{producto.referencia}}</td>
+                 					<td>{{producto.marca}}</td>
+                 					<td>{{producto.descripcion}}</td>
+                 					<td> 
+			 							<a ng-click="selreferencia(producto.referencia, producto.iva)" data-dismiss="modal" class="btn btn-success"><span class="glyphicon glyphicon-ok" style="cursor: pointer;"></span></a>
+                 					</td>
+								</tr>
+      						</tbody>
+      					</table>
+      				</div>
+    			</div><!-- /.modal-content -->
+  			</div><!-- /.modal-dialog -->
+		</div>
+		<!-- /modal -->
+			</div>
+		</div>
+		<div ng-show="editado">
+			<div class="alert alert-success col-md-12">
+				<h3 class="text-center">Cotización actualizada!</h3>
+				<hr>
+				<div class="row">
+					<div class="col-md-6 col-sm-6 col-xs-6">
+						<label for="fecha">Fecha</label>
+						<p>{{fecha | date:"dd-MM-yyyy"}}</p>
+					</div>
+					<div class="col-md-6 col-sm-6 col-xs-6 text-right">
+						<label for="consecutivo">Consecutivo</label>
+						<br>
+						<span>{{anoconse | date:'yyyy'}}</span>-<span>{{numeroconsecutivo}}</span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-6 col-sm-6 col-xs-6">
+						<label class="control-label" for="cliente">Cliente</label>
+						<p>{{cliente}}</p>
+						<label class="control-label" for="ciduad">Ciudad</label>
+						<p ng-model="ciudad">{{ciudad}}</p>
+						<label class="control-label" for="contacto">Contacto</label>
+						<p ng-model="contacto">{{contacto}}</p>
+						<label class="control-label" for="telefono">Telefono</label>
+						<p><span ng-model="cel">{{cel}}</span> - <span ng-model="tel">{{tel}}</span></p>
+					</div>
+					<div class="col-md-6 col-sm-6 col-xs-6">
+						<label class="control-label" for="nit">Nit - Div</label>
+						<p><span ng-model="nit">{{nit}}</span> - <span ng-model="div">{{div}}</span></p>
+						<label class="control-label" for="direccion">Dirección</label>
+						<p ng-model="direccion">{{direccion}}</p>
+						<label class="control-label" for="telefono">Email</label>
+						<p ng-model="email">{{email}}</p>
+					</div>
+				</div>
+				<hr>
+				<div class="table-responsive">
+					<table class="table">
+						<thead>
+							<tr>
+								<th class="text-center"><label class="control-label" for="item">Item</label></th>
+								<th class="text-center"><label class="control-label" for="referencia">Referencia</label></th>
+								<th class="text-center"><label class="control-label" for="imagen">Imagen</label></th>
+								<th class="text-center"><label class="control-label" for="descripcion">Descripción</label></th>
+								<th class="text-center"><label class="control-label" for="cantidad">Cantidad</label></th>
+								<th class="text-center"><label class="control-label" for="precio">Precio</label></th>
+								<th class="text-center"><label class="control-label" for="iva">Iva</label></th>
+								<th class="text-center"><label class="control-label" for="subtotal">Subtotal</label></th>
+								<td></td>
+								<td></td>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="producto in productos">
+								<th class="text-center"><p style="margin-top: 25%;" ng-model="item">{{producto.id}}</p></th>
+								<th class="text-center"><p ng-model="referencia">{{productos[$index].referencia}}</p></th>
+								<th class="text-center" style="width: 240px" ng-model="imagen"><img src="../images/uploads/{{productos[$index].image.name}}" style="width: 60%"></th>
+								<th class="text-justify"><p ng-model="descripcion">{{productos[$index].descripcion}}</p></th>
+								<th class="text-center"><p ng-model="productos[$index].cantidad">{{productos[$index].cantidad}}</p></th>
+								<th class="text-center"><p ng-model="precio">{{productos[$index].auxclase | currency:'$':0 }}</p></th>
+								<th class="text-center"><p ng-model="iva">{{productos[$index].iva}}%</p></th>
+								<th class="text-center"><p ng-model="subtotal">{{productos[$index].subtotal | currency:'$':0 }}</p></th>
+							</tr>
+							<tr>
+								<td colspan=6 style="border-top: none;"></td>
+								<td class="text-right"><label for="subtotal">Subtotal</label></td>
+								<td class="texte-center"><p>{{subtotal | currency:'$':0  }}</p></td>
+							</tr>
+							<tr>
+								<td colspan=6 style="border-top: none;"></td>
+								<td class="text-right"><label for="iva">IVA</label></td>
+								<td><p>{{iva | currency:'$':0  }}</p></td>
+							</tr>
+							<tr>
+								<td colspan=6 style="border-top: none;"></td>
+								<td class="text-right"><label for="total">Total</label></td>
+								<td><p>{{total | currency:'$':0 }}</p></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="col-md-8 col-md-offset-2 text-center" style="margin-top: 2%;">
+					<a href="#/clientes">
+					<button class="btn btn-success glyphicon glyphicon-ok-sign" style="font-size:2em; position: relative;"></button>
+					</a>
+				</div>
+			</div>
+		</div>
+	</script>
+
+	<!-- VER COTIZACIONES -->
+	<script type="text/ng-template" id="/cotizaciones.html">
+		<div class="row" style="background: rgba(245,245,245,.8); padding:2%; border-radius:7px;" ng-show="!editado">
+			<div class="page-header text-center">
+		  		<h1>Cotizaciones</h1>
+			</div>
+			<div class="row">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Consecutivo</th>
+							<th>Fecha</th>
+							<th>Cliente</th>
+							<th>Valor factura</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="coti in cotizaciones | orderBy: 'consecutivo.numeroconsecutivo'">
+							<td>COT / {{coti.consecutivo.anoconse | date:"yyyy"}}-{{coti.consecutivo.numeroconsecutivo}}</td>
+							<td>{{coti.fecha | date:"dd-MM-yyyy"}}</td>
+							<td>{{coti.cliente}}</td>
+							<td>{{coti.total | currency:'$ ':0 }}</td>
+							<td><a href="#/vercoti/{{coti._id}}" style="color: #000"><span class="glyphicon glyphicon-eye-open" style="font-size:2em; cursor: pointer;"></span></a></td>
+							<td><a href="#/editarcotizacion/{{coti._id}}"><span class="glyphicon glyphicon-pencil" style="font-size:2em; cursor: pointer;"></span></a></td>
+							<!-- <td style=" width: 4%">
+                 				<span data-toggle="modal" ng-click="cotizacionActual(cotizacion)" data-target="#confirmDelete" class="glyphicon glyphicon-remove-circle" style="font-size:2em; color: #D13C4C; cursor: pointer;"></span>
+                 			</td> -->
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="modal fade" id="confirmDelete" tabindex="-1" role="dialog">
+  			<div class="modal-dialog modal-sm">
+    			<div class="modal-content">
+      				<div class="text-center" style="padding: 5%;">
+      					<h4 class="modal-title" style="margin-bottom: 5%;">¿Realmente desea borrar el cliente?</h4>
+        				<button type="button" class="btn btn-info" data-dismiss="modal" ng-click="cerrar()">Cancelar</button>
+        				<button type="button" class="btn btn-danger" data-dismiss="modal" ng-click="deleteOne()">Borrar</button>
+      				</div>
+    			</div><!-- /.modal-content -->
+  			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+	</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+node_modules
+npm-debug.log
+public/.DS_Store
+public/images/uploads/.DS_Store
+public/images/.DS_Store
+public/javascripts/.DS_Store
