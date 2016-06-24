@@ -19,9 +19,9 @@ var mongoose = require('mongoose');
 var passport = require('passport');
 
 // connect to de db
-mongoose.connect('mongodb://programador:EDUtec1-2-3@ds019058.mlab.com:19058/iqboard' || 'mongodb://localhost/news', function(err, res){
+mongoose.connect('mongodb://localhost/news', function(err, res){
   if(err) console.log('NO SE  PUEDE CONECTAR A LA BASE DE DATOS - ERROR:   ' + err);
-  else console.log('Conexión exitosa a la base de datos:' + 'mongodb://programador:EDUtec1-2-3@ds019058.mlab.com:19058/iqboard');
+  else console.log('Conexión exitosa a la base de datos:');
 });
 
 require('./models/Posts');
